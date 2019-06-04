@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Server port="8005" shutdown="SHUTDOWN">
+  <!--AprLifecycleListener：Tomcat启动时，检查APR库，如果存在则加载。
+  APR，即Apache Portable Runtime，是Apache可移植运行库，可以实现高可扩展性、高性能，以及与本地服务器技术更好的集成。-->
+  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+  <!--JreMemoryLeakPreventionListener：与类加载器导致的内存泄露有关。-->
+  <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+  <!--GlobalResourcesLifecycleListener：通过该监听器，初始化< GlobalNamingResources>标签中定义的全局JNDI资源；如果没有该监听器，任何全局资源都不能使用。-->
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+  <!--ThreadLocalLeakPreventionListener：当Web应用因thread-local导致的内存泄露而要停止时，该监听器会触发线程池中线程的更新。当线程执行完任务被收回线程池时，活跃线程会一个一个的更新。
+  只有当Web应用(即Context元素)的renewThreadsWhenStoppingContext属性设置为true时，该监听器才有效。-->
+  <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+
+ 
+  <!--GlobalNamingResources元素定义了全局资源，通过配置可以看出，该配置是通过读取$TOMCAT_HOME/ conf/tomcat-users.xml实现的。-->
+  <GlobalNamingResources>
+    
+  <Resource name="UserDatabase" auth="Container"
+              type="org.apache.catalina.UserDatabase"
+              description="User database that can be updated and saved"
+              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
+              pathname="conf/tomcat-users.xml" />
+  </GlobalNamingResources>
+
+  <!--Service是在Connector和Engine外面包了一层，把它们组装在一起，对外提供服务-->
+  <Service name="Catalina">
+
+   
+    <!-- 设置控制请求Service的协议及端口号-->
+   <Connector port="8080" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               redirectPort="8443"  URIEncoding="utf-8" />
+               
+    
+    <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+
+
+    <!--Engine组件在Service组件中有且只有一个；Engine是Service组件中的请求处理组件-->
+    <!--其中，name属性用于日志和错误信息，在整个Server中应该唯一。
+    defaultHost属性指定了默认的host名称，当发往本机的请求指定的host名称不存在时，
+    一律使用defaultHost指定的host进行处理；因此，defaultHost的值，必须与Engine中的一个Host组件的name属性值匹配。-->
+    <Engine name="Catalina" defaultHost="localhost" >
+
+      
+      <!--realm用于配置安全管理角色-->
+      <Realm className="org.apache.catalina.realm.LockOutRealm"> 
+      <!--UserDatabaseRealm 默认的配置方式，信息存储于XML文档中 conf/tomcat-users.xml-->
+      <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+               resourceName="UserDatabase"/>
+      </Realm>
+    
+        <!--Engine组件中可以内嵌1个或多个Host组件，每个Host组件代表Engine中的一个虚拟主机。
+        Host组件至少有一个，且其中一个的name必须与Engine组件的defaultHost属性相匹配。-->
+      <Host name="localhost"  appBase="webapps"
+            unpackWARs="true" autoDeploy="true"  >
+            
+        <!--
+            name:属性指定虚拟主机的主机名
+            unpackWARs:指定了是否将代表Web应用的WAR文件解压
+            autoDeploy：为true会新建或重新部署应用
+            appBase: 这个目录下面的子目录将自动被部署为应用，且war文件将被自动解压缩并部署为应用，默认为tomcat下webapps目录，如果不想访问默认ROOT目录，修改这里，同理如果想访问配置目录下应用为默认应用，在此目录下新增ROOT目录文件夹。
+        -->
+            
+
+        <!--AccessLogValve记录的日志就是访问日志，每天的请求会写到一个日志文件里。AccessLogValve可以与Engine、Host或Context关联。-->
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+               prefix="localhost_access_log" suffix=".txt"
+               pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+               <!--
+                    %h：远程主机名或IP地址
+                    %l：远程逻辑用户名，一律是”-”，可以忽略。
+                    %u：授权的远程用户名，如果没有，则是”-”。
+                    %t：访问的时间。
+                    %r：请求的第一行，即请求方法(get/post等)、uri、及协议。
+                    %s：响应状态，200,404等等。
+                    %b：响应的数据量，不包括请求头，如果为0，则是””-。
+                    %D：含义是请求处理的时间(单位是毫秒).
+               -->
+      </Host>
+    </Engine>
+  </Service>
+</Server>
