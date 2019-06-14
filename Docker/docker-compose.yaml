@@ -13,6 +13,7 @@ services:
       - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=ROOT
+  
   nginx:
     container_name: nginx
     image: nginx:latest
@@ -29,6 +30,7 @@ services:
       - ./nginx/data/:/var/share/nginx/html/                     #映射nginx的网页目录到容器里
     links:
       - tomcat                                               #连接 tomcat镜像
+  
   tomcat:
     container_name: tomcat
     image: tomcat:latest
