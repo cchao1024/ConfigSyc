@@ -76,6 +76,7 @@ LC_ALL=en_US.UTF-8
 # ------------------- alias custom ------------------------
 alias rm="rm -i"
 alias fuck='eval $(thefuck $(fc -ln -1));'
+alias docm='docker-compose'
 # ---------------------------------------------------------
 
 # ------------------- theme custom -------------------------
