@@ -9,5 +9,6 @@ map S goBack
 map D goForward
 map W previousTab
 map E nextTab
+map q focusInput
 ```
 
